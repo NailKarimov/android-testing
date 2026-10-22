@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en" data-default-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Android app tests</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: a phone next to the test pyramid. A working split-the-bill calculator in a phone frame; the three
+   levels; Espresso vs Appium; the landscape finding; mutants. */
+:root {
+  --bg: #eef0f4; --surface: #ffffff; --sunken: #e2e6ee; --ink: #141720; --muted: #5a6070; --line: #cfd4df;
+  --accent: #1f7a3f; --accent-soft: #dcf1e3; --px: #0f6b73; --px-soft: #d5eeee;
+  --ok: #17784b; --ok-soft: #d8f1e3; --bad: #b42318; --bad-soft: #fbe1dd; --warn: #8a6100; --warn-soft: #f7ebc8;
+  --font-display: 'Bricolage Grotesque', 'Public Sans', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101219; --surface: #181b24; --sunken: #20242f; --ink: #e8eaf1; --muted: #a0a6b5; --line: #2e3341;
+    --accent: #6fd69a; --accent-soft: #10301d; --px: #6fd3db; --px-soft: #0f3134;
+    --ok: #62d49a; --ok-soft: #12321f; --bad: #ff8a7d; --bad-soft: #3d1714; --warn: #f1c35a; --warn-soft: #3a2d0c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101219; --surface: #181b24; --sunken: #20242f; --ink: #e8eaf1; --muted: #a0a6b5; --line: #2e3341;
+  --accent: #6fd69a; --accent-soft: #10301d; --px: #6fd3db; --px-soft: #0f3134;
+  --ok: #62d49a; --ok-soft: #12321f; --bad: #ff8a7d; --bad-soft: #3d1714; --warn: #f1c35a; --warn-soft: #3a2d0c;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--font-body); margin: 0; }
+body[data-lang="ru"] [lang="en"], body[data-lang="en"] [lang="ru"] { display: none !important; }
+.wrap { max-width: 1080px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 64px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.1; margin: 0; }
+h1 { font-size: clamp(30px, 5vw, 50px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(22px, 2.8vw, 30px); font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 16px; font-weight: 600; }
+p { margin: 0; max-width: 70ch; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+a { color: var(--accent); }
+button { font-family: var(--font-body); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 20px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.seg button { font: 500 13px var(--font-mono); background: transparent; color: var(--muted); border: 0; padding: 6px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.hero { display: grid; gap: 16px; padding-block: 8px; }
+.hero .lead { font-size: 18px; color: var(--muted); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; color: var(--muted); }
+.facts b { font: 800 24px var(--font-display); color: var(--ink); margin-right: 6px; font-variant-numeric: tabular-nums; }
+section.station { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; padding-block: 52px 0; }
+section.station > header { display: grid; gap: 8px; }
+.num { font: 700 13px var(--font-mono); color: var(--accent); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chips button { font: 500 13.5px var(--font-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 780px) { .two { grid-template-columns: minmax(0, 1fr); } }
+pre.code { margin: 0; background: var(--sunken); border-radius: 8px; padding: 10px 12px; font: 400 12.5px/1.55 var(--font-mono); overflow-x: auto; white-space: pre; }
+.tag { font: 600 11px var(--font-mono); padding: 2px 7px; border-radius: 4px; display: inline-block; white-space: nowrap; }
+.tag.ok { background: var(--ok-soft); color: var(--ok); } .tag.bad { background: var(--bad-soft); color: var(--bad); }
+.tag.warn { background: var(--warn-soft); color: var(--warn); } .tag.ac { background: var(--accent-soft); color: var(--accent); }
+.tag.px { background: var(--px-soft); color: var(--px); }
+.state { border-radius: 12px; padding: 14px; display: grid; gap: 4px; font-size: 15px; }
+.state.ok { background: var(--ok-soft); } .state.bad { background: var(--bad-soft); } .state.warn { background: var(--warn-soft); }
+.state b { font-family: var(--font-display); font-size: 19px; }
+
+.ctl { display: grid; gap: 12px; }
+.ctl label { display: grid; gap: 4px; font-size: 13.5px; color: var(--muted); }
+.ctl input { font: 500 15px var(--font-mono); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; font-size: 14.5px; align-items: baseline; }
+.kv b { font: 700 15px var(--font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+.list { display: grid; gap: 6px; grid-template-columns: minmax(0, 1fr); }
+.item { display: grid; grid-template-columns: 130px minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: start; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; font-size: 14.5px; }
+@media (max-width: 760px) { .item { grid-template-columns: minmax(0, 1fr); gap: 4px; } }
+.item code { overflow-wrap: anywhere; }
+.lanes { display: grid; gap: 8px; }
+.lane { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 13.5px; }
+.lane .track { display: flex; gap: 4px; flex-wrap: wrap; }
+.lane .track span { font: 600 11.5px var(--font-mono); padding: 5px 8px; border-radius: 6px; background: var(--sunken); }
+.lane .track span.w { background: var(--warn-soft); color: var(--warn); }
+.lane .track span.bad { background: var(--bad-soft); color: var(--bad); }
+.lane .track span.ok { background: var(--ok-soft); color: var(--ok); }
+dl.terms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+@media (max-width: 760px) { dl.terms { grid-template-columns: minmax(0, 1fr); } }
+dl.terms div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+dt { font: 700 13.5px var(--font-mono); } dd { margin: 4px 0 0; font-size: 14.5px; color: var(--muted); }
+.cmds { display: grid; gap: 6px; grid-template-columns: minmax(0, 1fr); }
+.cmd { display: flex; gap: 8px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 8px 8px 8px 14px; min-width: 0; }
+.cmd code { flex: 1; overflow-x: auto; white-space: nowrap; }
+.cmd button { font: 600 12px var(--font-mono); border: 1px solid var(--line); background: var(--sunken); color: var(--ink); border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+footer { padding-top: 48px; font-size: 14px; color: var(--muted); }
+.bk { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.bk button { font: 600 13px var(--font-mono); border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.fsm { display: flex; gap: 8px; flex-wrap: wrap; }
+.fsm span { font: 700 13px var(--font-mono); padding: 8px 14px; border-radius: 999px; border: 1px dashed var(--line); color: var(--muted); }
+.fsm span.on.closed { background: var(--ok-soft); color: var(--ok); border-style: solid; border-color: var(--ok); }
+.fsm span.on.open { background: var(--bad-soft); color: var(--bad); border-style: solid; border-color: var(--bad); }
+.fsm span.on.half { background: var(--warn-soft); color: var(--warn); border-style: solid; border-color: var(--warn); }
+.log { font: 400 12.5px/1.6 var(--font-mono); background: var(--sunken); border-radius: 8px; padding: 10px 12px; max-height: 190px; overflow-y: auto; margin: 0; white-space: pre-wrap; }
+.switch { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; }
+.phone { justify-self: center; width: min(300px, 100%); border: 10px solid var(--ink); border-radius: 30px; padding: 18px 14px; background: var(--surface); display: grid; gap: 8px; }
+.phone label { font-size: 13px; color: var(--muted); }
+.phone input { font: 500 16px var(--font-mono); padding: 8px; border: 0; border-bottom: 2px solid var(--line); background: transparent; color: var(--ink); width: 100%; }
+.phone .row { display: grid; grid-template-columns: 44px 1fr 44px; gap: 6px; align-items: end; }
+.phone button { font: 600 15px var(--font-body); border: 0; border-radius: 22px; padding: 10px; background: var(--accent); color: var(--surface); cursor: pointer; min-height: 44px; }
+.phone .err { color: var(--bad); min-height: 1.4em; font-size: 14px; }
+.phone .res { font-size: 16px; white-space: pre-line; min-height: 3em; }
+.lvl { display: grid; gap: 8px; }
+.lvl div { border-radius: 10px; padding: 10px 14px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: baseline; }
+.lvl b { font: 800 22px var(--font-display); }
+table.cmp { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.cmp th, table.cmp td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.cmp th { font: 600 12px var(--font-mono); color: var(--muted); }
+.tscroll { overflow-x: auto; }
+.land { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .land { grid-template-columns: minmax(0, 1fr); } }
+.scr { border: 6px solid var(--ink); border-radius: 16px; background: var(--surface); overflow: hidden; position: relative; font: 500 12px var(--font-mono); }
+.scr .in { padding: 8px 10px; display: grid; gap: 4px; }
+.scr .fold { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--bad); }
+.scr .r { background: var(--ok-soft); color: var(--ok); border-radius: 4px; padding: 2px 6px; }
+.scr .r.hidden { background: var(--bad-soft); color: var(--bad); }
+</style>
+</head>
+<body data-lang="ru">
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">android-testing · Kotlin · JUnit · Espresso · Appium 3</span>
+    <div class="seg" role="group" aria-label="Language">
+      <button type="button" id="lang-ru" data-l="ru" aria-pressed="true">RU</button>
+      <button type="button" id="lang-en" data-l="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 lang="ru">Тесты Android: делим счёт</h1>
+    <h1 lang="en">Android tests: splitting the bill</h1>
+    <p class="lead" lang="ru">Своё приложение на Kotlin и три уровня тестов: JUnit на JVM, Espresso внутри приложения и Appium снаружи, против установленного APK. Эмулятор поднимается прямо в GitHub Actions.</p>
+    <p class="lead" lang="en">An app of our own in Kotlin and three levels of tests: JUnit on the JVM, Espresso inside the app, and Appium from outside against the installed APK. The emulator starts right in GitHub Actions.</p>
+    <div class="facts">
+      <span><b>33</b><span lang="ru">теста на трёх уровнях</span><span lang="en">tests on three levels</span></span>
+      <span><b>API 30</b><span lang="ru">эмулятор в CI</span><span lang="en">emulator in CI</span></span>
+      <span><b>7/7</b><span lang="ru">мутантов в правилах денег</span><span lang="en">mutants in the money rules</span></span>
+    </div>
+  </section>
+
+  <section class="station" aria-labelledby="p1">
+    <header>
+      <span class="num">01</span>
+      <h2 id="p1" lang="ru">Приложение — попробуйте</h2><h2 lang="en">The app: try it</h2>
+      <p class="muted" lang="ru">Та же логика, что в BillSplitter.kt: деньги в центах, чаевые округляются «половина вверх», доля каждого — вверх, чтобы счёт был покрыт. Попробуйте 100 на троих без чаевых, 31 % чаевых или «12,50» с запятой.</p>
+      <p class="muted" lang="en">The same logic as BillSplitter.kt: money in cents, the tip rounded half up, each share rounded up so the bill is covered. Try 100 between three with no tip, a 31 % tip, or "12,50" with a comma.</p>
+    </header>
+    <div class="two">
+      <div class="phone" role="group" aria-label="Split the bill">
+        <strong style="font:800 20px var(--font-display)">Split the bill</strong>
+        <label for="bill">Bill</label><input id="bill" inputmode="decimal" value="84.50">
+        <label for="tip">Tip, %</label><input id="tip" inputmode="numeric" value="10">
+        <label for="people">People</label>
+        <div class="row"><button type="button" id="minus" aria-label="Fewer people">−</button><input id="people" inputmode="numeric" value="3" style="text-align:center"><button type="button" id="plus" aria-label="More people">+</button></div>
+        <button type="button" id="split">Split</button>
+        <div class="err" id="err" role="alert"></div>
+        <div class="res" id="res" aria-live="polite"></div>
+      </div>
+      <div class="panel" id="explain" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="station" aria-labelledby="p2">
+    <header>
+      <span class="num">02</span>
+      <h2 id="p2" lang="ru">Три уровня</h2><h2 lang="en">Three levels</h2>
+    </header>
+    <div class="lvl" id="lvl"></div>
+    <div class="panel tscroll"><table class="cmp" id="cmp"></table></div>
+  </section>
+
+  <section class="station" aria-labelledby="p3">
+    <header>
+      <span class="num">03</span>
+      <h2 id="p3" lang="ru">Что нашёл первый прогон: ответ под сгибом</h2><h2 lang="en">What the first run found: the answer below the fold</h2>
+      <p class="muted" lang="ru">Тест Appium с поворотом экрана упал с NoSuchElement. В альбомной ориентации результат оказывается ниже видимой части, а UiAutomator не сообщает о невидимых view. Espresso этого не заметил: recreate() не меняет ориентацию.</p>
+      <p class="muted" lang="en">The Appium rotation test failed with NoSuchElement. In landscape the result is below the visible part, and UiAutomator does not report views that are off screen. Espresso did not notice: recreate() keeps the orientation.</p>
+    </header>
+    <div class="land">
+      <div class="scr" style="height:220px"><div class="in"><span class="muted">portrait</span><b>Split the bill</b><span>Bill 84.50</span><span>Tip 10</span><span>People − 3 +</span><span>[ Split ]</span><span class="r">Each pays 30.99</span></div></div>
+      <div class="scr" style="height:120px"><div class="in"><span class="muted">landscape</span><b>Split the bill</b><span>Bill 84.50 · Tip 10</span><span>People − 3 +</span><span>[ Split ]</span><span class="r hidden">Each pays 30.99</span></div><div class="fold" style="top:104px"></div></div>
+    </div>
+    <pre class="code">driver.find_element(AppiumBy.ANDROID_UIAUTOMATOR,
+    'new UiScrollable(new UiSelector().scrollable(true))'
+    '.scrollIntoView(new UiSelector().resourceId("…:id/result"))')</pre>
+    <p class="muted" lang="ru">Заодно это маленькая находка по удобству: в альбомной ориентации пользователь должен прокрутить экран, чтобы увидеть ответ, который только что запросил.</p>
+    <p class="muted" lang="en">It is also a small usability finding: in landscape the user has to scroll to see the answer they just asked for.</p>
+  </section>
+
+  <section class="station" aria-labelledby="p4">
+    <header>
+      <span class="num">04</span>
+      <h2 id="p4" lang="ru">Посаженные баги в правилах</h2><h2 lang="en">Planted bugs in the rules</h2>
+    </header>
+    <div class="list" id="mut"></div>
+    <div class="cmds" id="cmds"></div>
+  </section>
+
+  <footer>
+    <span lang="ru">Код: <a href="https://github.com/NailKarimov/android-testing">github.com/NailKarimov/android-testing</a> · текстом: <code>docs/android.md</code> · <a href="./">Allure</a> · <a href="espresso/">Espresso</a> · <a href="appium/">Appium</a>.</span>
+    <span lang="en">Code: <a href="https://github.com/NailKarimov/android-testing">github.com/NailKarimov/android-testing</a> · as text: <code>docs/android.md</code> · <a href="./">Allure</a> · <a href="espresso/">Espresso</a> · <a href="appium/">Appium</a>.</span>
+  </footer>
+</div>
+
+<script>
+const S = { lang: 'ru' };
+const L = (ru, en) => (S.lang === 'ru' ? ru : en);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const $ = (id) => document.getElementById(id);
+
+/* 01: the same rules as BillSplitter.kt, in integer cents */
+function parseCents(t) { const m = t.trim().replace(',', '.').match(/^(\d{1,9})(?:\.(\d{1,2}))?$/); return m ? Number(m[1]) * 100 + Number((m[2] || '').padEnd(2, '0')) : null; }
+const money = (c) => `${Math.floor(c / 100)}.${String(c % 100).padStart(2, '0')}`;
+function calc() {
+  const bill = parseCents($('bill').value), tip = /^\s*\d+\s*$/.test($('tip').value) ? Number($('tip').value) : null, people = /^\s*\d+\s*$/.test($('people').value) ? Number($('people').value) : null;
+  let err = '';
+  if (bill === null || bill < 1 || bill > 10000000) err = 'Enter a bill from 0.01 to 100000.00';
+  else if (tip === null || tip > 30) err = 'Tip is 0 to 30 %';
+  else if (people === null || people < 1 || people > 50) err = 'People: 1 to 50';
+  $('err').textContent = err;
+  if (err) { $('res').textContent = ''; $('explain').innerHTML = `<p>${L('Ту же ошибку проверяет строка таблицы границ в BillSplitterBoundaryTest и тест Espresso/Appium на экране.', 'The same error is a row of the boundary table in BillSplitterBoundaryTest and an Espresso/Appium test on the screen.')}</p>`; return; }
+  const tipC = Math.floor((bill * tip + 50) / 100), total = bill + tipC, each = Math.floor((total + people - 1) / people), extra = each * people - total;
+  $('res').textContent = `Each pays ${money(each)}\nTip ${money(tipC)} · total ${money(total)}` + (extra ? `\nRounding up collects ${money(extra)} extra` : '');
+  const rawTip = (bill * tip) / 100;
+  $('explain').innerHTML = `<div class="kv"><span>${L('Чаевые точно', 'Exact tip')}</span><b>${(rawTip / 100).toFixed(3)}</b><span>${L('Чаевые после округления', 'Tip after rounding')}</span><b>${money(tipC)}</b><span>${L('Итого', 'Total')}</span><b>${money(total)}</b><span>${L('Точная доля', 'Exact share')}</span><b>${(total / people / 100).toFixed(4)}</b><span>${L('Каждый платит (вверх)', 'Each pays (rounded up)')}</span><b>${money(each)}</b><span>${L('Лишнее', 'Extra')}</span><b>${money(extra)}</b></div>` +
+    `<p class="muted">${L(`Лишнее всегда от 0 до ${people - 1} центов — это инвариант, который юнит-тест проверяет на 1 750 комбинациях. Мутант M2 (округление вниз) делает его отрицательным: счёт не покрыт.`, `The extra is always 0 to ${people - 1} cents: an invariant the unit test checks over 1,750 combinations. Mutant M2 (rounding down) makes it negative: the bill is not covered.`)}</p>`;
+}
+$('split').addEventListener('click', calc);
+$('minus').addEventListener('click', () => { $('people').value = Math.max(1, (Number($('people').value) || 1) - 1); });
+$('plus').addEventListener('click', () => { $('people').value = Math.min(50, (Number($('people').value) || 1) + 1); });
+
+/* 02 */
+function renderLevels() {
+  const lv = [
+    ['ok-soft', 'JUnit', 21, L('правила на JVM, без устройства; таблица границ и инварианты', 'the rules on the JVM, no device; a boundary table and invariants'), L('миллисекунды', 'milliseconds')],
+    ['accent-soft', 'Espresso', 7, L('экран внутри процесса приложения; ждёт, пока UI-поток свободен; recreate()', 'the screen inside the app process; waits for an idle UI thread; recreate()'), L('секунды', 'seconds')],
+    ['warn-soft', 'Appium', 5, L('установленный APK снаружи, по WebDriver; видит то, что видят сервисы доступности', 'the installed APK from outside over WebDriver; sees what accessibility services see'), L('десятки секунд', 'tens of seconds')],
+  ];
+  $('lvl').innerHTML = lv.map((x) => `<div style="background:var(--${x[0]})"><span><b>${x[2]}</b> ${x[1]}</span><span class="muted">${x[4]}</span><span class="muted" style="grid-column:1/-1">${x[3]}</span></div>`).join('');
+  const rows = [
+    [L('Где работает', 'Runs'), L('внутри процесса приложения', 'inside the app process'), L('снаружи, протокол W3C WebDriver', 'outside, W3C WebDriver protocol')],
+    [L('Синхронизация', 'Synchronisation'), L('автоматическая', 'automatic'), L('явные ожидания', 'explicit waits')],
+    [L('Находит view', 'Finds views by'), L('id, матчеры по дереву view', 'ids, matchers on the view tree'), L('id, текст, accessibility', 'ids, text, accessibility')],
+    [L('Язык', 'Language'), 'Kotlin', 'Python (pytest)'],
+    [L('Лучше всего для', 'Best for'), L('UI-тесты разработчиков рядом с кодом', 'developers\' UI tests next to the code'), L('чёрный ящик, несколько приложений или платформ', 'black box, several apps or platforms')],
+  ];
+  $('cmp').innerHTML = `<thead><tr><th></th><th>Espresso</th><th>Appium</th></tr></thead><tbody>` + rows.map((r) => `<tr><th scope="row">${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('') + '</tbody>';
+}
+
+const MUT = [
+  ['M1', ['чаевые округляются вниз', 'tip rounded down']], ['M2', ['доля округляется вниз — счёт не покрыт', 'shares rounded down: the bill is not covered']],
+  ['M3', ['31 % чаевых проходит', 'a 31 % tip accepted']], ['M4', ['нулевой счёт проходит', 'a zero bill accepted']], ['M5', ['51 человек проходит', '51 people accepted']],
+  ['M6', ['три знака после точки', 'three decimals accepted']], ['M7', ['запятая как разделитель отвергается', 'a decimal comma rejected']],
+];
+function renderMut() { $('mut').innerHTML = MUT.map((m) => `<div class="item"><b>${m[0]}</b><span>${esc(L(...m[1]))}</span><span class="muted">JUnit</span></div>`).join(''); }
+const CMDS = ['gradle testDebugUnitTest lintDebug', 'gradle connectedDebugAndroidTest', 'pytest appium -v', 'python3 scripts/mutants.py'];
+function renderCmds() { $('cmds').innerHTML = CMDS.map((c, i) => `<div class="cmd"><code id="cmd-${i}">${esc(c)}</code><button type="button" data-c="${i}">${L('Копировать', 'Copy')}</button></div>`).join(''); }
+$('cmds').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-c]'); if (!b) return;
+  const done = () => { b.textContent = L('Скопировано', 'Copied'); setTimeout(() => (b.textContent = L('Копировать', 'Copy')), 1500); };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents($('cmd-' + b.dataset.c)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+  try { navigator.clipboard.writeText(CMDS[+b.dataset.c]).then(done, fallback); } catch (err) { fallback(); }
+});
+
+function renderAll() { calc(); renderLevels(); renderMut(); renderCmds(); }
+function setLang(l) {
+  S.lang = l; document.body.dataset.lang = l; document.documentElement.lang = l;
+  $('lang-ru').setAttribute('aria-pressed', l === 'ru');
+  $('lang-en').setAttribute('aria-pressed', l === 'en');
+  try { localStorage.setItem('android-lang', l); } catch (e) {}
+  renderAll();
+}
+document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.l)));
+let start = document.documentElement.dataset.defaultLang || 'ru';
+try { start = localStorage.getItem('android-lang') || start; } catch (e) {}
+setLang(start);
+</script>
+</body>
+</html>
