@@ -35,7 +35,7 @@ def main(selected: set[str]) -> int:
             raise SystemExit(f"{mid}: pattern must occur exactly once")
         FILE.write_text(original.replace(old, new))
         try:
-            r = subprocess.run(["gradle", "--no-daemon", "-q", "testDebugUnitTest"], cwd=ROOT,
+            r = subprocess.run(["gradle", "--no-daemon", "testDebugUnitTest"], cwd=ROOT,
                                capture_output=True, text=True, check=False)
         finally:
             FILE.write_text(original)
