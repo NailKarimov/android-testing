@@ -50,6 +50,32 @@ jobs:
           name: unit
           path: out
 
+  mutants:
+    name: mutation check (JVM)
+    if: github.event_name != 'pull_request'
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+      - name: Every planted bug must fail the unit tests
+        run: |
+          mkdir -p out/mutants
+          python3 scripts/mutants.py | tee out/mutants/result.md | tee -a "$GITHUB_STEP_SUMMARY"
+          exit "${PIPESTATUS[0]}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutants
+          path: out
+
   device:
     name: Espresso and Appium on an emulator
     runs-on: ubuntu-latest
@@ -112,7 +138,7 @@ jobs:
 
   publish:
     if: always() && github.ref == 'refs/heads/main'
-    needs: [unit, device]
+    needs: [unit, device, mutants]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -140,6 +166,7 @@ jobs:
           cp -r parts/unit/lint site/lint 2>/dev/null || true
           cp -r parts/device/espresso site/espresso 2>/dev/null || true
           cp -r parts/device/appium site/appium 2>/dev/null || true
+          cp -r parts/mutants/mutants site/mutants 2>/dev/null || true
           for f in docs/*.html; do if [ -f "$f" ]; then cp "$f" site/; fi; done
           touch site/.nojekyll
       - uses: peaceiris/actions-gh-pages@v4
