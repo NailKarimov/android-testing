@@ -13,6 +13,15 @@ def by_id(driver, name):
     return driver.find_element(AppiumBy.ID, PKG + name)
 
 
+def scrolled_to(driver, name):
+    """UiAutomator only reports views on screen; in landscape the result is below the fold and has to be scrolled to."""
+    return driver.find_element(
+        AppiumBy.ANDROID_UIAUTOMATOR,
+        "new UiScrollable(new UiSelector().scrollable(true))"
+        f'.scrollIntoView(new UiSelector().resourceId("{PKG}{name}"))',
+    )
+
+
 def fill(driver, bill, tip, people):
     for field, value in (("bill", bill), ("tip", tip), ("people", people)):
         el = by_id(driver, field)
@@ -52,7 +61,7 @@ def test_result_survives_rotation(driver):
     by_id(driver, "split").click()
     driver.orientation = "LANDSCAPE"
     try:
-        assert "Each pays 30.99" in by_id(driver, "result").text
+        assert "Each pays 30.99" in scrolled_to(driver, "result").text
     finally:
         driver.orientation = "PORTRAIT"
 
