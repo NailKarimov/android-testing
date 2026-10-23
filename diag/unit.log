@@ -8,17 +8,17 @@ Daemon will be stopped at the end of the build
 > Task :app:mapDebugSourceSetPaths
 > Task :app:generateDebugResources
 > Task :app:packageDebugResources
+> Task :app:mergeDebugResources
 > Task :app:createDebugCompatibleScreenManifests
 > Task :app:extractDeepLinksDebug
 > Task :app:parseDebugLocalResources
-> Task :app:mergeDebugResources
 > Task :app:processDebugMainManifest
 > Task :app:processDebugManifest
 > Task :app:processDebugManifestForPackage
 > Task :app:javaPreCompileDebug
 > Task :app:preDebugUnitTestBuild UP-TO-DATE
-> Task :app:javaPreCompileDebugUnitTest
 > Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:javaPreCompileDebugUnitTest
 > Task :app:generateDebugAndroidTestResValues
 > Task :app:extractProguardFiles
 > Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
@@ -61,8 +61,8 @@ Daemon will be stopped at the end of the build
 > Task :app:mergeExtDexDebug
 > Task :app:compileDebugKotlin
 > Task :app:compileDebugJavaWithJavac NO-SOURCE
-> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:bundleDebugClassesToCompileJar
+> Task :app:bundleDebugClassesToRuntimeJar
 > Task :app:processDebugJavaRes
 > Task :app:generateDebugAndroidTestLintModel
 > Task :app:generateDebugLintReportModel
@@ -96,7 +96,7 @@ Daemon will be stopped at the end of the build
 Wrote HTML report to file:///home/runner/work/android-testing/android-testing/app/build/reports/lint-results-debug.html
 
 > Task :app:lintDebug
-gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1792695051691.json
+gradle/actions: Writing build results to /home/runner/work/_temp/.gradle-actions/build-results/__run-1792776075052.json
 
-BUILD SUCCESSFUL in 35s
+BUILD SUCCESSFUL in 42s
 74 actionable tasks: 74 executed
