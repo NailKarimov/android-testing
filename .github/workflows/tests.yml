@@ -166,6 +166,10 @@ jobs:
           cp -r parts/unit/lint site/lint 2>/dev/null || true
           cp -r parts/device/espresso site/espresso 2>/dev/null || true
           cp -r parts/device/appium site/appium 2>/dev/null || true
+          if [ -d site/appium ]; then
+            { echo '<!doctype html><meta charset="utf-8"><title>Appium screenshots</title><h1>Appium: last screen of each test</h1>';
+              for f in site/appium/*.png; do n=$(basename "$f" .png); echo "<h2>$n</h2><img src=\"$n.png\" width=\"300\" alt=\"$n\">"; done; } > site/appium/index.html
+          fi
           cp -r parts/mutants/mutants site/mutants 2>/dev/null || true
           for f in docs/*.html; do if [ -f "$f" ]; then cp "$f" site/; fi; done
           touch site/.nojekyll
