@@ -2,6 +2,7 @@
 
 [![Tests](https://github.com/NailKarimov/android-testing/actions/workflows/tests.yml/badge.svg)](https://github.com/NailKarimov/android-testing/actions/workflows/tests.yml)
 [![Allure report](https://img.shields.io/badge/report-Allure-orange)](https://nailkarimov.github.io/android-testing/)
+[![Release](https://img.shields.io/github/v/release/NailKarimov/android-testing)](https://github.com/NailKarimov/android-testing/releases)
 
 ### ▶ Open online
 
@@ -83,6 +84,8 @@ docs/                         test plan, test report, guides
 - the `mutants` job plants bugs in the money rules;
 - the `publish` job puts the Allure report, the Espresso, unit and lint reports, a screenshot of each Appium test,
   logcat and the logs on GitHub Pages.
+
+Releases: committing `.github/releases/<tag>.md` runs the Release workflow, which creates the tag and the GitHub release with that file as its notes.
 
 ## Documentation
 
