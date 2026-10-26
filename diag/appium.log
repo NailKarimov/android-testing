@@ -11,4 +11,4 @@ appium/test_split_bill.py::test_result_survives_rotation PASSED          [ 80%]
 appium/test_split_bill.py::test_every_input_has_a_visible_label PASSED   [100%]
 
 - generated xml file: /home/runner/work/android-testing/android-testing/appium-results/junit.xml -
-============================== 5 passed in 50.81s ==============================
+============================== 5 passed in 49.67s ==============================
