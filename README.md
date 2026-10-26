@@ -3,6 +3,20 @@
 [![Tests](https://github.com/NailKarimov/android-testing/actions/workflows/tests.yml/badge.svg)](https://github.com/NailKarimov/android-testing/actions/workflows/tests.yml)
 [![Allure report](https://img.shields.io/badge/report-Allure-orange)](https://nailkarimov.github.io/android-testing/)
 
+### ▶ Open online
+
+| Page | What it is |
+| --- | --- |
+| **[Allure test report](https://nailkarimov.github.io/android-testing/)** | latest CI run |
+| [JUnit results](https://nailkarimov.github.io/android-testing/unit/) | latest CI run |
+| [Espresso results](https://nailkarimov.github.io/android-testing/espresso/) | emulator in CI |
+| [Appium screenshots](https://nailkarimov.github.io/android-testing/appium/) | emulator in CI |
+| [Android Lint report](https://nailkarimov.github.io/android-testing/lint/) | latest CI run |
+| [Planted bugs](https://nailkarimov.github.io/android-testing/mutants/result.md) | mutation check result |
+| [Android tests](https://nailkarimov.github.io/android-testing/android.html) | interactive guide |
+
+Click these links: opening an `.html` file in the file list shows its source code, GitHub does not run it.
+
 Mobile tests **in Kotlin** on a small Android app of our own, "Split the bill". The tests run at three levels,
 JVM unit tests, Espresso and Appium, and all of them run in GitHub Actions on an API 30 emulator.
 
