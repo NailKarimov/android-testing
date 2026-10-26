@@ -40,6 +40,8 @@ JVM unit tests, Espresso and Appium, and all of them run in GitHub Actions on an
 
 ## Findings
 
+The landscape bug is a closed issue in [Issues](https://github.com/NailKarimov/android-testing/issues?q=is%3Aissue+is%3Aclosed+label%3Abug).
+
 - **The answer is below the fold in landscape.** The first CI run failed the Appium rotation test with
   `NoSuchElement`, because UiAutomator does not report views that are off screen. Espresso did not notice, since
   `recreate()` keeps the orientation. The user has to scroll to see the result they just asked for. The test now
