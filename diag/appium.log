@@ -5,10 +5,4 @@ rootdir: /home/runner/work/android-testing/android-testing
 collecting ... collected 5 items
 
 appium/test_split_bill.py::test_splits_a_bill PASSED                     [ 20%]
-appium/test_split_bill.py::test_explains_a_bad_people_count PASSED       [ 40%]
-appium/test_split_bill.py::test_steppers_are_found_by_their_accessible_names PASSED [ 60%]
-appium/test_split_bill.py::test_result_survives_rotation PASSED          [ 80%]
-appium/test_split_bill.py::test_every_input_has_a_visible_label PASSED   [100%]
-
-- generated xml file: /home/runner/work/android-testing/android-testing/appium-results/junit.xml -
-============================== 5 passed in 49.67s ==============================
+appium/test_split_bill.py::test_explains_a_bad_people_count 
