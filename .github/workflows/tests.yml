@@ -24,12 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
       - name: Unit tests, lint, build the APKs
@@ -44,7 +44,7 @@ jobs:
           cp -r app/build/reports/tests/testDebugUnitTest/. out/unit/ 2>/dev/null || true
           cp app/build/reports/lint-results-debug.html out/lint/index.html 2>/dev/null || true
           mkdir -p out/junit && cp app/build/test-results/testDebugUnitTest/*.xml out/junit/ 2>/dev/null || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: unit
@@ -57,12 +57,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
       - name: Every planted bug must fail the unit tests
@@ -70,7 +70,7 @@ jobs:
           mkdir -p out/mutants
           python3 scripts/mutants.py | tee out/mutants/result.md | tee -a "$GITHUB_STEP_SUMMARY"
           exit "${PIPESTATUS[0]}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mutants
@@ -81,18 +81,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
       - name: Build the APKs
@@ -127,7 +127,7 @@ jobs:
           cp -r appium-results/. out/appium/ 2>/dev/null || true
           mkdir -p out/junit && find app/build/outputs/androidTest-results -name '*.xml' -exec cp {} out/junit/ \; 2>/dev/null || true
           cp appium-results/junit.xml out/junit/appium.xml 2>/dev/null || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: device
@@ -141,14 +141,14 @@ jobs:
     needs: [unit, device, mutants]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           path: parts
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
