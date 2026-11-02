@@ -1,5 +1,5 @@
 ============================= test session starts ==============================
-platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.7.0 -- /opt/hostedtoolcache/Python/3.13.16/x64/bin/python3
+platform linux -- Python 3.13.17, pytest-9.1.1, pluggy-1.7.0 -- /opt/hostedtoolcache/Python/3.13.17/x64/bin/python3
 cachedir: .pytest_cache
 rootdir: /home/runner/work/android-testing/android-testing
 collecting ... collected 5 items
@@ -11,4 +11,4 @@ appium/test_split_bill.py::test_result_survives_rotation PASSED          [ 80%]
 appium/test_split_bill.py::test_every_input_has_a_visible_label PASSED   [100%]
 
 - generated xml file: /home/runner/work/android-testing/android-testing/appium-results/junit.xml -
-============================== 5 passed in 53.44s ==============================
+============================== 5 passed in 53.20s ==============================
